@@ -19,11 +19,13 @@
             <legend>Tim A</legend>
             <label>Nama tim<input name="teamA" type="text" maxlength="24" placeholder="Contoh: Tim A" required /></label>
             <div class="setup-players"><label>Pemain 1<input name="aPlayer1" type="text" maxlength="24" placeholder="Nama pemain" required /></label><label>Pemain 2<input name="aPlayer2" type="text" maxlength="24" placeholder="Nama pemain" required /></label></div>
+            <label class="character-choice">Karakter tim<select name="teamAAvatar"><option value="🐻">🐻 Beruang</option><option value="🦊">🦊 Rubah</option><option value="🐼">🐼 Panda</option><option value="🐯">🐯 Harimau</option><option value="🐸">🐸 Katak</option><option value="🐰">🐰 Kelinci</option><option value="🐱">🐱 Kucing</option><option value="🐶">🐶 Anjing</option></select></label>
           </fieldset>
           <fieldset class="setup-team setup-team-b">
             <legend>Tim B</legend>
             <label>Nama tim<input name="teamB" type="text" maxlength="24" placeholder="Contoh: Tim B" required /></label>
             <div class="setup-players"><label>Pemain 1<input name="bPlayer1" type="text" maxlength="24" placeholder="Nama pemain" required /></label><label>Pemain 2<input name="bPlayer2" type="text" maxlength="24" placeholder="Nama pemain" required /></label></div>
+            <label class="character-choice">Karakter tim<select name="teamBAvatar"><option value="🐸">🐸 Katak</option><option value="🐻">🐻 Beruang</option><option value="🦊">🦊 Rubah</option><option value="🐼">🐼 Panda</option><option value="🐯">🐯 Harimau</option><option value="🐰">🐰 Kelinci</option><option value="🐱">🐱 Kucing</option><option value="🐶">🐶 Anjing</option></select></label>
           </fieldset>
         </div>
         <label class="match-target-field">Target match point <span>Opsional · kosongkan untuk tanpa batas</span><input name="matchPointTarget" type="number" min="1" max="99" inputmode="numeric" placeholder="Tanpa batas" /></label>
@@ -45,8 +47,8 @@
       </header>
 
       <section class="scoreboard tabletop" aria-label="Meja domino empat pemain">
-        <article class="player-seat seat-a-top"><span class="seat-position" id="aSeatTeamTop">Tim A</span><div class="seat-identity"><span class="player-avatar avatar-a character-rabbit" aria-hidden="true">🐰</span><strong id="aPlayer1">Pemain 1</strong></div></article>
-        <article class="player-seat seat-b-left"><span class="seat-position" id="bSeatTeamLeft">Tim B</span><div class="seat-identity"><span class="player-avatar avatar-b character-bear" aria-hidden="true">🐻</span><strong id="bPlayer1">Pemain 3</strong></div></article>
+        <article class="player-seat seat-a-top"><span class="seat-position" id="aSeatTeamTop">Tim A</span><div class="seat-identity"><span class="player-avatar avatar-a" data-team-avatar="a" aria-hidden="true">🐻</span><strong id="aPlayer1">Pemain 1</strong></div></article>
+        <article class="player-seat seat-b-left"><span class="seat-position" id="bSeatTeamLeft">Tim B</span><div class="seat-identity"><span class="player-avatar avatar-b" data-team-avatar="b" aria-hidden="true">🐸</span><strong id="bPlayer1">Pemain 3</strong></div></article>
         <section class="table-center" aria-label="Skor meja">
           <div class="table-center-heading"><span class="domino-stamp" aria-hidden="true"><i></i><i></i><b></b><i></i><i></i></span><div><p>INPUT POIN PUTARAN</p><span>Tim yang menang mendapat poin, skor lawan tetap.</span></div></div>
           <article class="team-score-panel panel-a">
@@ -61,8 +63,8 @@
             <div class="card-score-actions" aria-label="Tambah poin Tim B"><button data-winner="b" data-points="1">+1</button><button data-winner="b" data-points="2">+2</button><button data-winner="b" data-points="3">+3</button><button data-winner="b" data-points="4">+4</button></div>
           </article>
         </section>
-        <article class="player-seat seat-b-right"><span class="seat-position" id="bSeatTeamRight">Tim B</span><div class="seat-identity"><span class="player-avatar avatar-b character-frog" aria-hidden="true">🐸</span><strong id="bPlayer2">Pemain 4</strong></div></article>
-        <article class="player-seat seat-a-bottom"><span class="seat-position" id="aSeatTeamBottom">Tim A</span><div class="seat-identity"><span class="player-avatar avatar-a character-cat" aria-hidden="true">🐱</span><strong id="aPlayer2">Pemain 2</strong></div></article>
+        <article class="player-seat seat-b-right"><span class="seat-position" id="bSeatTeamRight">Tim B</span><div class="seat-identity"><span class="player-avatar avatar-b" data-team-avatar="b" aria-hidden="true">🐸</span><strong id="bPlayer2">Pemain 4</strong></div></article>
+        <article class="player-seat seat-a-bottom"><span class="seat-position" id="aSeatTeamBottom">Tim A</span><div class="seat-identity"><span class="player-avatar avatar-a" data-team-avatar="a" aria-hidden="true">🐻</span><strong id="aPlayer2">Pemain 2</strong></div></article>
       </section>
 
       <section class="bottom-grid">
@@ -79,6 +81,7 @@
               <input id="queuePlayer1" type="text" maxlength="24" placeholder="Pemain 1" aria-label="Nama pemain pertama" required />
               <input id="queuePlayer2" type="text" maxlength="24" placeholder="Pemain 2" aria-label="Nama pemain kedua" required />
             </div>
+            <label class="queue-avatar-choice">Karakter tim<select id="queueTeamAvatar"><option value="🦊">🦊 Rubah</option><option value="🐻">🐻 Beruang</option><option value="🐼">🐼 Panda</option><option value="🐯">🐯 Harimau</option><option value="🐸">🐸 Katak</option><option value="🐰">🐰 Kelinci</option><option value="🐱">🐱 Kucing</option><option value="🐶">🐶 Anjing</option></select></label>
             <button type="submit" aria-label="Tambah tim antrean">Tambah tim</button>
           </form>
           <p class="list-label queue-list-label">DAFTAR ANTREAN</p>
@@ -99,6 +102,7 @@
         <h2 id="modalTitle">Konfirmasi</h2>
         <p id="modalMessage"></p>
         <input id="modalInput" type="text" maxlength="24" hidden />
+        <select id="modalSelect" hidden></select>
         <div class="modal-actions"><button id="modalCancel" type="button">Batal</button><button id="modalConfirm" type="button">Lanjut</button></div>
       </section>
     </div>

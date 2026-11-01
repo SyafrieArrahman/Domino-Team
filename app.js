@@ -1,11 +1,12 @@
 const TARGET = 10;
+const TEAM_AVATARS = ['🐻','🦊','🐼','🐯','🐸','🐰','🐱','🐶'];
 const initialState = () => ({
   setupComplete: false,
   matchPointTarget: null,
   gameStartedAt: null,
   teams: {
-    a: { name: 'Tim A', players: ['Pemain 1', 'Pemain 2'], score: 0, wins: 0, matches: 0 },
-    b: { name: 'Tim B', players: ['Pemain 3', 'Pemain 4'], score: 0, wins: 0, matches: 0 },
+    a: { name: 'Tim A', players: ['Pemain 1', 'Pemain 2'], avatar: '🐻', score: 0, wins: 0, matches: 0 },
+    b: { name: 'Tim B', players: ['Pemain 3', 'Pemain 4'], avatar: '🐸', score: 0, wins: 0, matches: 0 },
   },
   waitingTeams: [],
   history: [],
@@ -27,17 +28,20 @@ try {
       const savedPlayers = Array.isArray(oldTeam.players) ? oldTeam.players : [];
       return [key, { ...fresh.teams[key], ...oldTeam,
         players: [0, 1].map((index) => typeof savedPlayers[index] === 'string' && savedPlayers[index].trim() ? savedPlayers[index] : defaultPlayers[index]),
+        avatar: TEAM_AVATARS.includes(oldTeam.avatar) ? oldTeam.avatar : fresh.teams[key].avatar,
         score: Number(oldTeam.score) || 0, wins: Number(oldTeam.wins) || 0, matches: Number(oldTeam.matches) || 0 }];
     })),
     waitingTeams: Array.isArray(saved.waitingTeams)
       ? saved.waitingTeams.filter((team) => team && typeof team === 'object').map((team, index) => ({
           name: typeof team.name === 'string' && team.name.trim() ? team.name.trim() : `Tim antrean ${index + 1}`,
           players: Array.isArray(team.players) ? [0, 1].map((i) => typeof team.players[i] === 'string' && team.players[i].trim() ? team.players[i].trim() : `Pemain ${i + 1}`) : ['Pemain 1', 'Pemain 2'],
+          avatar: TEAM_AVATARS.includes(team.avatar) ? team.avatar : '🦊',
         }))
       : Array.isArray(saved.queue)
         ? Array.from({ length: Math.ceil(saved.queue.length / 2) }, (_, index) => ({
             name: `Tim antrean ${index + 1}`,
             players: [saved.queue[index * 2], saved.queue[index * 2 + 1]].map((name, i) => typeof name === 'string' && name.trim() ? name.trim() : `Pemain ${i + 1}`),
+            avatar: '🦊',
           }))
         : [],
     history: Array.isArray(saved.history) ? saved.history : [],
@@ -60,7 +64,7 @@ function renderPlayerLists() {
         const item = document.createElement('li');
         const teamTag = document.createElement('span');
         teamTag.className = `roster-team roster-${key}`;
-        teamTag.textContent = team.name;
+        teamTag.textContent = `${team.avatar || '🐻'} ${team.name}`;
         const playerName = document.createElement('span');
         playerName.className = 'roster-name';
         playerName.textContent = player;
@@ -72,7 +76,7 @@ function renderPlayerLists() {
       const item = document.createElement('li');
       const queueTag = document.createElement('span');
       queueTag.className = 'roster-team roster-waiting';
-      queueTag.textContent = waitingTeam.name;
+      queueTag.textContent = `${waitingTeam.avatar || '🦊'} ${waitingTeam.name}`;
       const playerName = document.createElement('span');
       playerName.className = 'roster-name';
       playerName.textContent = waitingTeam.players.join(' & ');
@@ -122,6 +126,7 @@ function render() {
     $(`#team${key.toUpperCase()}Name`).textContent = team.name;
     $(`#${key}Player1`).textContent = team.players[0];
     $(`#${key}Player2`).textContent = team.players[1];
+    document.querySelectorAll(`[data-team-avatar="${key}"]`).forEach((avatar) => { avatar.textContent = team.avatar || (key === 'a' ? '🐻' : '🐸'); });
     $(`#${key}Score`).textContent = team.score;
     $(`#${key}Wins`).textContent = state.matchPointTarget === null ? `${team.matches} match point` : `${team.matches} / ${state.matchPointTarget} match point`;
   });
@@ -162,19 +167,32 @@ function toast(message) {
   const el = $('#toast'); el.textContent = message; el.classList.add('visible');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('visible'), 2400);
 }
-function showModal({ title, message, value = null, confirmLabel = 'Lanjut', cancelLabel = 'Batal', danger = false }) {
+function showModal({ title, message, value = null, choices = null, confirmLabel = 'Lanjut', cancelLabel = 'Batal', danger = false }) {
   return new Promise((resolve) => {
     const backdrop = $('#modalBackdrop');
     const input = $('#modalInput');
+    const select = $('#modalSelect');
     $('#modalTitle').textContent = title;
     $('#modalMessage').textContent = message;
     $('#modalConfirm').textContent = confirmLabel;
     $('#modalCancel').textContent = cancelLabel;
     $('#modalConfirm').classList.toggle('danger', danger);
-    input.hidden = value === null;
+    input.hidden = value === null || Boolean(choices);
     input.value = value ?? '';
+    select.hidden = !choices;
+    select.replaceChildren();
+    if (choices) {
+      choices.forEach((choice) => {
+        const option = document.createElement('option');
+        option.value = choice.value;
+        option.textContent = choice.label;
+        select.append(option);
+      });
+      select.value = choices.some((choice) => choice.value === value) ? value : choices[0].value;
+    }
     backdrop.hidden = false;
-    if (value !== null) { input.focus(); input.select(); }
+    if (choices) select.focus();
+    else if (value !== null) { input.focus(); input.select(); }
     else $('#modalConfirm').focus();
     const finish = (result) => {
       backdrop.hidden = true;
@@ -184,7 +202,7 @@ function showModal({ title, message, value = null, confirmLabel = 'Lanjut', canc
       document.removeEventListener('keydown', onKey);
       resolve(result);
     };
-    const onConfirm = () => finish(value === null ? true : input.value.trim());
+    const onConfirm = () => finish(choices ? select.value : value === null ? true : input.value.trim());
     const onCancel = () => finish(null);
     const onBackdrop = (event) => { if (event.target === backdrop) finish(null); };
     const onKey = (event) => {
@@ -234,12 +252,12 @@ function rotateLosingTeam(winner, loser) {
   const winnerTeam = state.teams[winner];
   const outgoing = state.teams[loser];
   const incoming = state.waitingTeams.shift();
-  state.teams[loser] = { name: incoming.name, players: incoming.players, score: 0, wins: 0, matches: 0 };
+  state.teams[loser] = { name: incoming.name, players: incoming.players, avatar: incoming.avatar || '🦊', score: 0, wins: 0, matches: 0 };
   state.teams.a.matches = 0;
   state.teams.b.matches = 0;
   state.teams.a.score = 0;
   state.teams.b.score = 0;
-  state.waitingTeams.push({ name: outgoing.name, players: outgoing.players });
+  state.waitingTeams.push({ name: outgoing.name, players: outgoing.players, avatar: outgoing.avatar || '🐻' });
   addHistory(`${winnerTeam.name} menang match; ${incoming.name} masuk, ${outgoing.name} kembali ke antrean`);
   toast(`${winnerTeam.name} menang! ${incoming.name} menggantikan ${outgoing.name}; ${outgoing.name} masuk antrean.`);
 }
@@ -254,7 +272,7 @@ $('#queueForm').addEventListener('submit', (event) => {
   const player1 = player1Input.value.trim();
   const player2 = player2Input.value.trim();
   if (!name || !player1 || !player2) return;
-  state.waitingTeams.push({ name, players: [player1, player2] });
+  state.waitingTeams.push({ name, players: [player1, player2], avatar: $('#queueTeamAvatar').value });
   teamNameInput.value = '';
   player1Input.value = '';
   player2Input.value = '';
@@ -287,6 +305,17 @@ document.querySelectorAll('.edit-name').forEach((button) => button.addEventListe
     if (updated === null) break;
     if (updated) team.players[index] = updated.slice(0, 24);
   }
+  const avatar = await showModal({
+    title: 'Pilih karakter tim',
+    message: `Kedua pemain ${team.name} akan memakai karakter yang sama.`,
+    value: team.avatar,
+    choices: [
+      ['🐻','Beruang'],['🦊','Rubah'],['🐼','Panda'],['🐯','Harimau'],
+      ['🐸','Katak'],['🐰','Kelinci'],['🐱','Kucing'],['🐶','Anjing'],
+    ].map(([character, label]) => ({ value: character, label: `${character} ${label}` })),
+    confirmLabel: 'Pakai karakter',
+  });
+  if (avatar) team.avatar = avatar;
   render();
 }));
 $('#resetButton').addEventListener('click', async () => {
@@ -299,8 +328,8 @@ $('#setupForm').addEventListener('submit', (event) => {
   const form = event.currentTarget;
   const data = new FormData(form);
   const value = (key) => String(data.get(key) || '').trim();
-  state.teams.a = { name: value('teamA'), players: [value('aPlayer1'), value('aPlayer2')], score: 0, wins: 0, matches: 0 };
-  state.teams.b = { name: value('teamB'), players: [value('bPlayer1'), value('bPlayer2')], score: 0, wins: 0, matches: 0 };
+  state.teams.a = { name: value('teamA'), players: [value('aPlayer1'), value('aPlayer2')], avatar: value('teamAAvatar') || '🐻', score: 0, wins: 0, matches: 0 };
+  state.teams.b = { name: value('teamB'), players: [value('bPlayer1'), value('bPlayer2')], avatar: value('teamBAvatar') || '🐸', score: 0, wins: 0, matches: 0 };
   const target = value('matchPointTarget');
   state.matchPointTarget = target ? Math.max(1, Math.min(99, Number.parseInt(target, 10) || 1)) : null;
   state.gameStartedAt = Date.now();
