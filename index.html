@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#102b25" />
+    <title>Domino Team — 2 vs 2</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section class="setup-screen" id="setupScreen" hidden>
+      <form class="setup-panel" id="setupForm">
+        <span class="setup-emblem" aria-hidden="true">✣</span>
+        <p class="eyebrow">SIAPKAN MEJA</p>
+        <h1>Siapa yang main?</h1>
+        <p class="setup-copy">Masukkan dua tim yang akan mulai bermain. Tim berikutnya bisa ditambahkan ke antrean setelah meja dibuka.</p>
+        <div class="setup-teams">
+          <fieldset class="setup-team setup-team-a">
+            <legend>Tim A</legend>
+            <label>Nama tim<input name="teamA" type="text" maxlength="24" placeholder="Contoh: Tim A" required /></label>
+            <div class="setup-players"><label>Pemain 1<input name="aPlayer1" type="text" maxlength="24" placeholder="Nama pemain" required /></label><label>Pemain 2<input name="aPlayer2" type="text" maxlength="24" placeholder="Nama pemain" required /></label></div>
+          </fieldset>
+          <fieldset class="setup-team setup-team-b">
+            <legend>Tim B</legend>
+            <label>Nama tim<input name="teamB" type="text" maxlength="24" placeholder="Contoh: Tim B" required /></label>
+            <div class="setup-players"><label>Pemain 1<input name="bPlayer1" type="text" maxlength="24" placeholder="Nama pemain" required /></label><label>Pemain 2<input name="bPlayer2" type="text" maxlength="24" placeholder="Nama pemain" required /></label></div>
+          </fieldset>
+        </div>
+        <label class="match-target-field">Target match point <span>Opsional · kosongkan untuk tanpa batas</span><input name="matchPointTarget" type="number" min="1" max="99" inputmode="numeric" placeholder="Tanpa batas" /></label>
+        <button class="setup-submit" type="submit">Buka meja domino <span>↗</span></button>
+      </form>
+    </section>
+    <main class="app-shell">
+      <header class="topbar">
+        <button class="queue-toggle" id="queueToggle" type="button"><span aria-hidden="true">👥</span> Antrean Tim <b id="queueCount">0</b></button>
+        <section class="matchbar" aria-label="Skor match">
+          <div class="match-team-summary summary-a"><strong id="headerTeamAName">Tim A</strong><span id="aWins">0 match point</span></div>
+          <div class="matchbar-center"><span class="mode-dot"></span><strong id="modeLabel">PERTANDINGAN</strong><time class="game-timer" id="gameTimer" aria-label="Waktu pertandingan">00:00</time><span id="targetLabel">10 poin → 1 match point</span></div>
+          <div class="match-team-summary summary-b"><strong id="headerTeamBName">Tim B</strong><span id="bWins">0 match point</span></div>
+        </section>
+        <div class="topbar-right">
+          <button class="rules-button" id="rulesButton" type="button"><span>▤</span> Aturan Main</button>
+          <button class="reset-total" id="resetButton" type="button"><span>⏻</span> Reset Total</button>
+        </div>
+      </header>
+
+      <section class="scoreboard tabletop" aria-label="Meja domino empat pemain">
+        <article class="player-seat seat-a-top"><span class="seat-position" id="aSeatTeamTop">Tim A</span><strong id="aPlayer1">Pemain 1</strong></article>
+        <article class="player-seat seat-b-left"><span class="seat-position" id="bSeatTeamLeft">Tim B</span><strong id="bPlayer1">Pemain 3</strong></article>
+        <section class="table-center" aria-label="Skor meja">
+          <div class="table-center-heading"><span class="domino-stamp" aria-hidden="true"><i></i><i></i><b></b><i></i><i></i></span><div><p>INPUT POIN PUTARAN</p><span>Tim yang menang mendapat poin, skor lawan tetap.</span></div></div>
+          <article class="team-score-panel panel-a">
+            <div class="score-panel-heading"><span class="team-icon">A</span><div><strong id="teamAName">Tim A</strong><button class="edit-name" data-team="a" aria-label="Ubah nama Tim A">✎</button></div></div>
+            <div class="panel-score-line"><span>Poin</span><strong id="aScore">0</strong></div>
+            <div class="card-score-actions" aria-label="Tambah poin Tim A"><button data-winner="a" data-points="1">+1</button><button data-winner="a" data-points="2">+2</button><button data-winner="a" data-points="3">+3</button><button data-winner="a" data-points="4">+4</button></div>
+          </article>
+          <div class="table-divider"><span>VS</span></div>
+          <article class="team-score-panel panel-b">
+            <div class="score-panel-heading"><span class="team-icon">B</span><div><strong id="teamBName">Tim B</strong><button class="edit-name" data-team="b" aria-label="Ubah nama Tim B">✎</button></div></div>
+            <div class="panel-score-line"><span>Poin</span><strong id="bScore">0</strong></div>
+            <div class="card-score-actions" aria-label="Tambah poin Tim B"><button data-winner="b" data-points="1">+1</button><button data-winner="b" data-points="2">+2</button><button data-winner="b" data-points="3">+3</button><button data-winner="b" data-points="4">+4</button></div>
+          </article>
+        </section>
+        <article class="player-seat seat-b-right"><span class="seat-position" id="bSeatTeamRight">Tim B</span><strong id="bPlayer2">Pemain 4</strong></article>
+        <article class="player-seat seat-a-bottom"><span class="seat-position" id="aSeatTeamBottom">Tim A</span><strong id="aPlayer2">Pemain 2</strong></article>
+      </section>
+
+      <section class="bottom-grid">
+        <article class="queue-card">
+          <div class="section-heading compact"><div><p class="eyebrow">PEMAIN BERIKUTNYA</p><h2>Antrean Tim</h2></div><span class="queue-state" id="queueState">Kosong</span><button class="drawer-close" id="queueClose" type="button" aria-label="Tutup antrean">×</button></div>
+          <p class="card-description" id="queueDescription">Tim antrean berikutnya akan menggantikan tim yang kalah setelah target match point tercapai.</p>
+          <div class="roster-block">
+            <p class="list-label">DAFTAR PEMAIN</p>
+            <ul id="rosterList" class="roster-list"></ul>
+          </div>
+          <form id="queueForm" class="queue-form">
+            <input id="queueTeamName" type="text" maxlength="24" placeholder="Nama tim (contoh: Tim C)" aria-label="Nama tim antrean" required />
+            <div class="queue-player-fields">
+              <input id="queuePlayer1" type="text" maxlength="24" placeholder="Pemain 1" aria-label="Nama pemain pertama" required />
+              <input id="queuePlayer2" type="text" maxlength="24" placeholder="Pemain 2" aria-label="Nama pemain kedua" required />
+            </div>
+            <button type="submit" aria-label="Tambah tim antrean">Tambah tim</button>
+          </form>
+          <p class="list-label queue-list-label">DAFTAR ANTREAN</p>
+          <ol id="queueList" class="queue-list"></ol>
+          <div class="empty-queue" id="emptyQueue">Tambahkan tim untuk mengisi antrean.</div>
+        </article>
+        <article class="history-card">
+          <div class="section-heading compact"><div><p class="eyebrow">AKTIVITAS MEJA</p><h2>Riwayat</h2></div><span class="history-mark">↗</span></div>
+          <ol id="historyList" class="history-list"><li class="history-empty">Belum ada hasil ronde.</li></ol>
+        </article>
+      </section>
+      <footer><span>DOMINO TEAM</span><span>Permainan lebih seru kalau semua kebagian giliran.</span></footer>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="modal-backdrop" id="modalBackdrop" hidden>
+      <section class="app-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <span class="modal-mark" aria-hidden="true">✣</span>
+        <h2 id="modalTitle">Konfirmasi</h2>
+        <p id="modalMessage"></p>
+        <input id="modalInput" type="text" maxlength="24" hidden />
+        <div class="modal-actions"><button id="modalCancel" type="button">Batal</button><button id="modalConfirm" type="button">Lanjut</button></div>
+      </section>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
